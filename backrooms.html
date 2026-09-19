@@ -67,7 +67,7 @@
         );
 
         // lights
-        const light = new THREE.AmbientLight(0xeed299, 0.2);
+        const light = new THREE.AmbientLight(0xeed299, 1.2);
         scene.add(light);
 
         // flashlight
@@ -88,7 +88,16 @@
         const keys = { w: false, a: false, s: false, d: false };
 
         window.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = true;
+            const key = e.key.toLowerCase();
+
+            if (key in keys) {
+                keys[key] = true;
+            }
+
+            if (key === 'f' && blackout && !e.repeat) {
+                flashlightOn = !flashlightOn;
+                flashlight.visible = flashlightOn;
+            }
         });
         window.addEventListener('keyup', (e) => {
             if (e.key.toLowerCase() in keys) keys[e.key.toLowerCase()] = false;
@@ -111,6 +120,29 @@
             return hits.length > 0 && hits[0].distance < 0.5;
         }
 
+        function startBlackout() {
+            blackout = true;
+
+            levelLight.intensity = 0.02;
+
+            flashlightOn = false;
+            flashlight.visible = false;
+
+            console.log("BLACKOUT!");
+        }
+
+        function endBlackout() {
+            blackout = false;
+
+            levelLight.intensity = 1.2;
+
+            flashlightOn = false;
+            flashlight.visible = false;
+
+            console.log("Power restored");
+        }
+
+        // animation loop
         function animate() {
             requestAnimationFrame(animate);
 
@@ -131,6 +163,9 @@
 
             const left = right.clone().negate();
 
+            let blackout = false;
+            let flashlightOn = false;
+
             // movement
             if (keys.w && !wallInDirection(forward))
                 controls.moveForward(moveSpeed);
@@ -143,6 +178,15 @@
 
             if (keys.d && !wallInDirection(right))
                 controls.moveRight(moveSpeed);
+
+            //blackout debug
+            if (key === 'b') {
+                startBlackout();
+            }
+
+            if (key === 'n') {
+                endBlackout();
+            }
 
             // flashlight updating
             flashlight.position.copy(camera.position);
