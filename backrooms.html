@@ -98,6 +98,12 @@
 
             const hits = raycaster.intersectObjects(level, true);
 
+            if (hits.length > 0) {
+                console.log("Nearest wall:", hits[0].distance);
+            } else {
+                console.log("Ray hit NOTHING");
+            }
+
             if (hits.length > 0 && hits[0].distance < 0.5) {
                 return true;
             }
