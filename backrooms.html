@@ -67,13 +67,14 @@
         );
 
         // lights
-        const light = new THREE.AmbientLight(0xeed299, 1.2);
-        scene.add(light);
+        const levelLight = new THREE.AmbientLight(0xeed299, 1.2);
+        scene.add(levelLight);
 
         // flashlight
         const flashlight = new THREE.SpotLight(0xffffff, 6, 15, Math.PI / 5, 0.6, 1);
         scene.add(flashlight);
         scene.add(flashlight.target);
+        flashlight.visible = false;
 
         // player spawn
         camera.position.set(3, 1.6, 3);
@@ -83,6 +84,8 @@
             controls.lock();
         });
 
+        let blackout = false;
+        let flashlightOn = false;
 
         // detect wasd
         const keys = { w: false, a: false, s: false, d: false };
@@ -97,6 +100,15 @@
             if (key === 'f' && blackout && !e.repeat) {
                 flashlightOn = !flashlightOn;
                 flashlight.visible = flashlightOn;
+            }
+
+            //blackout debug
+            if (key === 'b') {
+                startBlackout();
+            }
+
+            if (key === 'n') {
+                endBlackout();
             }
         });
         window.addEventListener('keyup', (e) => {
@@ -163,9 +175,6 @@
 
             const left = right.clone().negate();
 
-            let blackout = false;
-            let flashlightOn = false;
-
             // movement
             if (keys.w && !wallInDirection(forward))
                 controls.moveForward(moveSpeed);
@@ -178,15 +187,6 @@
 
             if (keys.d && !wallInDirection(right))
                 controls.moveRight(moveSpeed);
-
-            //blackout debug
-            if (key === 'b') {
-                startBlackout();
-            }
-
-            if (key === 'n') {
-                endBlackout();
-            }
 
             // flashlight updating
             flashlight.position.copy(camera.position);
