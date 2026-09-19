@@ -45,14 +45,20 @@
                 level.traverse((object) => {
                     if (object.isMesh) {
 
-                        console.log(object.name, object.material);
-
                         if (Array.isArray(object.material)) {
                             object.material.forEach(material => {
                                 material.side = THREE.DoubleSide;
+
+                                if (material.isMeshStandardMaterial) {
+                                    material.metalness = 0;
+                                }
                             });
                         } else {
                             object.material.side = THREE.DoubleSide;
+
+                            if (object.material.isMeshStandardMaterial) {
+                                object.material.metalness = 0;
+                            }
                         }
                     }
                 });
@@ -70,7 +76,7 @@
         );
 
         // lights
-        const levelLight = new THREE.AmbientLight(0xffffff, 10);
+        const levelLight = new THREE.AmbientLight(0xffe0a0, 1.5);
         scene.add(levelLight);
 
         // flashlight
