@@ -42,6 +42,18 @@
             (gltf) => {
                 level = gltf.scene;
 
+                level.traverse((object) => {
+                    if (object.isMesh) {
+                        if (Array.isArray(object.material)) {
+                            object.material.forEach(material => {
+                                material.side = THREE.DoubleSide;
+                            });
+                        } else {
+                            object.material.side = THREE.DoubleSide;
+                        }
+                    }
+                });
+
                 scene.add(level);
 
                 console.log("Level loaded!", level);
