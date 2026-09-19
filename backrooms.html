@@ -44,6 +44,9 @@
 
                 level.traverse((object) => {
                     if (object.isMesh) {
+
+                        console.log(object.name, object.material);
+
                         if (Array.isArray(object.material)) {
                             object.material.forEach(material => {
                                 material.side = THREE.DoubleSide;
