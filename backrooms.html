@@ -100,22 +100,7 @@
         function wallInDirection(direction) {
             if (!level) return false;
 
-            const forward = new THREE.Vector3();
-            camera.getWorldDirection(forward);
             direction = direction.clone();
-            forward.y = 0;
-            forward.normalize();
-
-            const backward = forward.clone().negate();
-
-            const right = new THREE.Vector3(
-                -forward.z,
-                0,
-                forward.x
-            )
-
-            const left = right.clone().negate();
-
             direction.y = 0;
             direction.normalize();
 
@@ -128,12 +113,36 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            
+
+            // figure out which way the player is facing
+            const forward = new THREE.Vector3();
+            camera.getWorldDirection(forward);
+
+            forward.y = 0;
+            forward.normalize();
+
+            const backward = forward.clone().negate();
+
+            const right = new THREE.Vector3(
+                -forward.z,
+                0,
+                forward.x
+            );
+
+            const left = right.clone().negate();
+
             // movement
-            if (keys.w && !wallInDirection(forward)) controls.moveForward(moveSpeed);
-            if (keys.s && !wallInDirection(backward)) controls.moveForward(-moveSpeed);
-            if (keys.a && !wallInDirection(left)) controls.moveRight(-moveSpeed);
-            if (keys.d && !wallInDirection(right)) controls.moveRight(moveSpeed);
+            if (keys.w && !wallInDirection(forward))
+                controls.moveForward(moveSpeed);
+
+            if (keys.s && !wallInDirection(backward))
+                controls.moveForward(-moveSpeed);
+
+            if (keys.a && !wallInDirection(left))
+                controls.moveRight(-moveSpeed);
+
+            if (keys.d && !wallInDirection(right))
+                controls.moveRight(moveSpeed);
 
             // flashlight updating
             flashlight.position.copy(camera.position);
