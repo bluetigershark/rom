@@ -31,13 +31,16 @@
         document.body.appendChild(renderer.domElement);
 
         // level
+        let level;
+
         const loader = new GLTFLoader();
+        const raycaster = new THREE.Raycaster();
 
         loader.load(
             'models/level1.glb',
 
             (gltf) => {
-                const level = gltf.scene;
+                level = gltf.scene;
 
                 scene.add(level);
 
@@ -81,14 +84,35 @@
 
         const moveSpeed = 0.06;
 
+        // raycaster
+        function wallAhead() {
+            if (!level) return false;
+
+            const direction = new THREE.Vector3();
+            camera.getWorldDirection(direction);
+
+            direction.y = 0; 
+            direction.normalize();
+
+            raycaster.set(camera.position, direction);
+
+            const hits = raycaster.intersectObjects(level, true);
+
+            if (hits.length > 0 && hits[0].distance < 0.5) {
+                return true;
+            }
+
+            return false;
+        }
+
         function animate() {
             requestAnimationFrame(animate);
             
             // movement
-            if (keys.w) controls.moveForward(moveSpeed);
-            if (keys.s) controls.moveForward(-moveSpeed);
-            if (keys.a) controls.moveRight(-moveSpeed);
-            if (keys.d) controls.moveRight(moveSpeed);
+            if (keys.w && !wallAhead()) controls.moveForward(moveSpeed);
+            if (keys.s && !wallAhead()) controls.moveForward(-moveSpeed);
+            if (keys.a && !wallAhead()) controls.moveRight(-moveSpeed);
+            if (keys.d && !wallAhead()) controls.moveRight(moveSpeed);
 
             // flashlight updating
             flashlight.position.copy(camera.position);
@@ -104,7 +128,7 @@
             renderer.render(scene, camera);
         }
 
-        // window nerdy stuff (resizing :P) (im not a nerd i sweer!!1!!1!)
+        // window resizing stuff
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
