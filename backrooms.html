@@ -108,7 +108,7 @@
 
             raycaster.set(camera.position, direction);
 
-            const hits = raycaster.intersectObjects(level, true);
+            const hits = raycaster.intersectObject(level, true);
 
             if (hits.length > 0) {
                 console.log("Nearest wall:", hits[0].distance);
