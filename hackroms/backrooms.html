@@ -30,6 +30,27 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        // level
+        const loader = new GLTFLoader();
+
+        loader.load(
+            'models/level1.glb',
+
+            (gltf) => {
+                const level = gltf.scene;
+
+                scene.add(level);
+
+                console.log("Level loaded!", level);
+            },
+
+            undefined,
+
+            (error) => {
+                console.error("LEVEL FAILED TO LOAD:", error);
+            }
+        );
+
         // lights
         const light = new THREE.AmbientLight(0xeed299, 0.2);
         scene.add(light);
@@ -39,110 +60,6 @@
         scene.add(flashlight);
         scene.add(flashlight.target);
 
-        // map config yippee!!
-        const map = [
-            [1,1,1,1,1,1,1,1,1,1],
-            [1,0,0,0,0,0,0,0,0,1],
-            [1,0,0,1,1,0,0,0,0,1],
-            [1,0,0,1,0,0,1,1,0,1],
-            [1,0,0,0,0,0,0,1,0,1],
-            [1,0,1,1,0,1,0,0,0,1],
-            [1,0,0,0,0,1,0,0,0,1],
-            [1,0,0,0,0,0,0,0,0,1],
-            [1,1,1,1,1,1,1,1,1,1]
-        ];
-
-        // floor
-        const floorGeo = new THREE.PlaneGeometry(20, 18);
-        const floorMat = new THREE.MeshStandardMaterial({
-            color: 0x443322,
-            side: THREE.DoubleSide
-        });
-
-        const floor = new THREE.Mesh(floorGeo, floorMat);
-
-        floor.rotation.x = -Math.PI / 2;
-        floor.position.set(10, 0, 9);
-
-        scene.add(floor);
-
-        // ceiling
-        const ceilingGeo = new THREE.PlaneGeometry(20, 18);
-
-        const ceilingMat = new THREE.MeshStandardMaterial({
-            color: 0x665544,
-            side: THREE.DoubleSide
-        });
-
-        const ceiling = new THREE.Mesh(ceilingGeo, ceilingMat);
-
-        ceiling.rotation.x = Math.PI / 2;
-        ceiling.position.set(10, 3, 9);
-
-        scene.add(ceiling);
-
-        // wall config
-        const wallGeo = new THREE.BoxGeometry(2, 3, 2);
-        const wallMat = new THREE.MeshStandardMaterial({ color: 0xaaaa77 });
-    
-        // wall gen
-        const loader = new GLTFLoader();
-
-        loader.load(
-            'models/wall.glb',
-
-            (gltf) => {
-                console.log("Wall loaded!", gltf);
-
-                const wallModel = gltf.scene;
-
-                for (let z = 0; z < map.length; z++) {
-                    for (let x = 0; x < map[z].length; x++) {
-
-                        if (map[z][x] === 1) {
-                            const wall = wallModel.clone();
-
-                            wall.position.set(
-                                x * 2 + 1,
-                                0,
-                                z * 2 + 1
-                            );
-
-                            scene.add(wall);
-                        }
-                    }
-                }
-            },
-
-            // debug (dont mind!)
-            (progress) => {
-                console.log("Loading wall...");
-            },
-
-            // ERROR
-            (error) => {
-                console.error("WALL FAILED TO LOAD:", error);
-            }
-        );
-
-        // collision calc
-        function isWall(x, z) {
-            const mapX = Math.floor(x / 2);
-            const mapZ = Math.floor(z / 2);
-
-            // Outside vertically
-            if (mapZ < 0 || mapZ >= map.length) {
-                return true;
-            }
-
-            // Outside horizontally
-            if (mapX < 0 || mapX >= map[mapZ].length) {
-                return true;
-            }
-
-            return map[mapZ][mapX] === 1;
-        }
-
         // player spawn
         camera.position.set(3, 1.6, 3);
         const controls = new PointerLockControls(camera, document.body);
@@ -150,6 +67,7 @@
         document.body.addEventListener('click', () => {
             controls.lock();
         });
+
 
         // detect wasd
         const keys = { w: false, a: false, s: false, d: false };
@@ -165,25 +83,12 @@
 
         function animate() {
             requestAnimationFrame(animate);
-
-            const oldX = camera.position.x;
-            const oldZ = camera.position.z;
             
             // movement
             if (keys.w) controls.moveForward(moveSpeed);
             if (keys.s) controls.moveForward(-moveSpeed);
             if (keys.a) controls.moveRight(-moveSpeed);
             if (keys.d) controls.moveRight(moveSpeed);
-
-            // collision logic
-            if (isWall(camera.position.x, oldZ)) {
-                camera.position.x = oldX;
-            }
-
-            // z collision
-            if (isWall(oldX, camera.position.z)) {
-                camera.position.z = oldZ;
-            }
 
             // flashlight updating
             flashlight.position.copy(camera.position);
